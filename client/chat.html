@@ -1,0 +1,283 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>基本信息设置--Massenger</title>
+<link type="text/css" rel="stylesheet" href="../css/public.css" />
+<link type="text/css" rel="stylesheet" href="/js/skins/default.css" />
+<link type="text/css" rel="stylesheet" href="../css/index.css" />
+<link type="text/css" rel="stylesheet" href="../js/Swich/honeySwitch.css" />
+<link rel="stylesheet" type="text/css" href="../css/chat.css"/>
+<!--<script src="https://og6593g2z.qnssl.com/fundebug.0.3.3.min.js"
+        apikey="9e24335cfab0865d97862e6e2fcd4f0c242159f4e48c4307d4cc2f83d23c2fef"></script>-->
+</head>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/lhgdialog.min.js"></script>
+<script src="../js/common.js"></script>
+<script src="../js/usercenter.js"></script>
+<script src="../js/Swich/honeySwitch.js"></script>
+<script src="../js/jquery-jtemplates.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/socket.io.js" type="text/javascript" charset="utf-8"></script>
+<style>
+	html,body{height: 100%;}
+	.fbox{height: 100%;background: #fff;position: relative;overflow: hidden;padding-top: 70px;box-sizing: border-box;}
+	.fbm-title{position: absolute;left: 0;top: 0;z-index: 1;width: 100%;height: 60px;border-bottom-width: 10px;font-size: 18px;font-weight: normal;}
+	.page{height: 80px;position: relative;}
+	.page .bindBtn{float: right;border: none;background:#FC4F3F;color: #fff;width: 90px;height:34px;border-radius: 2px;margin:23px 20px;cursor: pointer;}
+	#PageOne{display: none;}
+	#PageTwo{display: none;}
+	.page dl{width:350px;height: 100%;float: left;}
+	.page dl>dt{width: 70px;float: left;height: 100%;position: relative;}
+	.page dl>dt>img{position: absolute;right:10px;top: 20px;}
+	.page dl>dd{float: left;color:#666;font-size: 12px;padding-top:20px;}
+	.page dl>dd>.mainPage{font-size: 16px;color:#333;font-weight:600;display: inline-block;margin-bottom:4px;}
+	.page .bingImg>img{position: relative;top: 3px;}
+	.switch-off,.switch-on{position: absolute;right: 0;margin: 25px 20px;}
+</style>
+<body>
+	<div class="gg_tcbj fuck">
+
+</div>
+<div class="framelt">
+</div>
+
+
+<div class="framert">
+
+  <!--标题 -->
+    <div class="fbox" >
+      <p class="gg_right_tit fbm-title">客户消息</p>
+  	  <div class="page" id="PageOne"><!--未绑定-->
+  	  	<dl>
+  	  		<dt>
+  	  			<img src="../images/massenger/headSculpture.png" />
+  	  		</dt>
+  	  		<dd>
+  	  			<span class="mainPage">您尚未绑定Facebook公共主页</span><br />
+  	  			<span>请先绑定主页后开启</span>
+  	  		</dd>
+  	  	</dl>
+  	  	<button class="bindBtn">去绑定</button>
+  	  </div>
+  		<div class="page" style="height: 100%;" id="PageTwo"><!--已绑定-->
+			<div class="fbm-con">
+				<div class="fbm-left-wraper">
+					<div class="fbm-search">
+						<label class="fbm-search-label">
+							<input id="searchInput" class="fbm-search-input" oninput="searchInputValChange(event)" onpropertychange="searchInputValChange(event)" autocomplete="off" type="text"  placeholder="请输入用户昵称" spellcheck="false" />
+							<span id="clearInputVal" class="fbm-search-clear"></span>
+						</label>
+					</div>
+					<div class="fbm-left">
+						<div class="fbm-chat-list" >
+							<ul class="fbm-chat-ul" id="messagesList"></ul>
+						</div>
+						<textarea id="messagesBoxTmp" class="template">
+							{#foreach $T.data as data}
+								<li class="{$T.data.readFlag == 0 ? 'fbm-chat-li unread' : 'fbm-chat-li' }" id="{'user'+$T.data.psId}" data-psId="{$T.data.psId}" >
+									<div class="fbm-chat-item">
+										<div class="fbm-chat-avatar">
+											<img class="fbm-chat-avatar-img" src="{$T.data.psAvatar}" width="40" height="40"/>
+										</div>
+										<div class="fbm-chat-content">
+											<div class="fbm-chat-item-top">
+												<span class="fbm-chat-item-name">{$T.data.psNickName}</span>
+												<span class="fbm-chat-item-time">{formatDate($T.data.lastMsgTime)}</span>
+											</div>
+											<div class="fbm-chat-item-bot">
+												<span class="fbm-chat-item-msg">{$T.data.lastMsg}</span>
+											</div>
+										</div>
+									</div>
+								</li>
+							{#/for}
+							{#if !$T.data.length} 
+								<li class="fbm-none-user">
+									<div class=""><img class="fbm-none-user-icon" width="32" height="32" src="../images/orderxx12.jpg"/> 没有找到用户</div>
+								</li>
+							{#/if}
+						</textarea>	
+					</div>
+					<!---->
+					<div class="fbm-contact-list fbm-hide">
+						<div class="fbm-contact-title">联系人</div>
+						<ul class="fbm-contact-ul">
+							<li class="fbm-contact-li">
+								<div class="fbm-contact-avatar">
+									<img class="fbm-contact-img" src="../images/dp004.png" width="32" height="32"/>
+								</div>
+								<div class="fbm-contact-name">哈哈</div>
+							</li>
+						</ul>
+					</div>				
+				</div>
+				
+				<!--聊天消息-->
+				<div class="fbm-body-wraper" id="chatRoomBox">
+					<!--<div class="fbm-chat-room active" >
+						<div class="fbm-msg-box">
+							<div class="fbm-msg-header">
+								<img class="fbm-header-avatar" src="../images/ie.png" height="40" width="40"/>
+								<div class="fbm-header-info">
+									<div class="fbm-header-name">Loonxi</div>
+									<div class="fbm-header-what">Facebook <span>People</span></div>
+								</div>
+							</div>
+							<div class="fbm-msg-body">
+								<ul class="fbm-msg-list" >
+									<li class="fbm-msg-item"><div class="fbm-msg-date">2017.11.27 22:32</div></li>
+									<li class="fbm-msg-item">
+										<div class="fbm-msg-content sender"><img class="fbm-sender-img" width="32" height="32" src="../images/firefox.png"/><span>6565656</span></div>
+									</li>
+									<li class="fbm-msg-item"><div class="fbm-msg-content receiver"><img class="fbm-receiver-img" width="32" height="32" src="../images/google.png"/><span>fdsdfsdf</span></div></li>
+								
+								</ul>
+							</div>
+						</div>
+						<div class="fbm-text-box">
+							<div class="fbm-text-left">
+								<input class="fbm-text-input" type="text" value="" placeholder="输入消息..." />
+							</div>
+							<div class="fbm-text-right">
+								<span class="fbm-file-icon">
+									<input class="fbm-text-file" type="file" multiple accept="*" title="添加文件" />
+								</span>
+								<button class="fbm-text-send" type="button">发送</button>
+							</div>
+						</div>
+					</div>-->
+				</div>
+			</div>
+  		</div>
+    </div>
+
+</div>
+
+
+<input id="hidMenu" type="hidden" value="menu_setting" />
+<input id="hidSubMenu" type="hidden" value="submenu_chat" />
+<input id="hidMenu2" type="hidden" value="menu2_setting" />
+<script src="../js/style.js"></script>
+<script src="../js/chatApi.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/chat.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	var shopId = null;
+	var pageId = null;
+	//var Chat = {}; 
+	$.ajax({       //获取用户信息
+        type: "POST",
+        url: WebConfig.interfaceUrl + "/user/get",
+        data:{},
+        dataType: WebConfig.dataTypeJson,
+        success: function (json) {
+            if (json.success == true && json.data ) {
+            	shopId=json.data.shopId;
+            	//getDetail(shopId)
+            } else {
+                alertModel(json.message)
+            }
+        }
+    });
+	
+	$.ajax({
+        type: "GET",
+        url: WebConfig.interfaceUrl + "/marketing/channel/facebook/bind/get",
+        data:{},
+        dataType: WebConfig.dataTypeJson,
+        success: function (json) {
+        	if(json.data && json.success ==true){
+                if(json.data.pageId){
+                	Chat.addresser = json.data;
+                	pageId = json.data.pageId;
+                	setcookie('pageId',json.data.pageId)
+					$("#PageOne").hide()
+                	$("#PageTwo").show()
+                	$(".mainName").html(json.data.pageName)
+                	$('dt.bindImgSrc').html('<img src='+json.data.pageAvatar+' style="width:40px;height:40px"/>')
+                }else{
+                	$("#PageOne").show()
+                	$("#PageTwo").hide()
+                	$("#PageOne .bindBtn").click(function(){
+//              		if(!json.data.nickname){
+//              			alertModel('请先绑定Facebook', 250, 50, 0)
+//              		}
+//              		else{
+//              			alertModel('请绑定Facebook公共主页', 250, 50, 0)
+//              		}
+//              		setTimeout(function() {
+					       window.location.href = "/sales/Sales.html"
+//					    },1000)
+				    })
+                }
+        	} else {
+                alertModel(json.message)
+            }
+        }
+    });
+
+    //监听搜索框实时搜索
+    function searchInputValChange () {
+		var lastVal = $('#searchInput').val();
+		
+		lastVal.length ? $('#clearInputVal').show() : $('#clearInputVal').hide();
+		setTimeout(function(){
+			if($('#searchInput').val() == lastVal) {
+				Chat.getFbMsgUserList($('#searchInput').val(), function(data){
+					Chat.userData = data ? Chat.formatUserData(data) : [];
+					Chat.updateUserList()
+				})
+			}
+		},800)
+	}
+    //清除 searchInput value
+    $('#clearInputVal').click(function(){
+    	$('#searchInput').val('');
+		$('#clearInputVal').hide();
+    	Chat.getFbMsgUserList('', function(data){
+			Chat.userData = data ? Chat.formatUserData(data) : [];
+			Chat.updateUserList()
+		})
+    })
+    
+    
+    var today = new Date();
+    Chat.today = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    
+    /*
+	同一天24小时内 时间显示 时分
+	24小时后 显示 月 日
+	flag 显示年月日 时分*/
+	function formatDate(dateTimeString, flag){
+	    var datetime;
+	    var result = '';
+		if (typeof(dateTimeString) != "string") {
+	        datetime = new Date(dateTimeString)
+	    }else{
+	    	if (isNaN(Date.parse(dateTimeString))) {
+		        datetime = new Date(Date.parse(dateTimeString.replace(/-/g, '/').replace(/T/g, '')));
+		    } else {
+		        datetime = new Date(Date.parse(dateTimeString))
+		    }
+	    }
+	    var sTime = (new Date().getTime()) - datetime.getTime();
+	    
+	    var Hour = datetime.getHours() < 10 ? '0' + datetime.getHours() : datetime.getHours();
+	    var Minute = datetime.getMinutes() < 10 ? '0' + datetime.getMinutes() : datetime.getMinutes();
+	    if(new Date(Chat.today).getTime()>datetime.getTime()) {   //sTime > 24*60*60*1000
+	    	var Month = datetime.getMonth() + 1;
+    		var Day = datetime.getDate();
+    		result = Month + '月' + Day + '日';
+    		if(flag) {
+    			result = datetime.getFullYear()+'.'+Month+'.'+Day+' ' + Hour + ':' + Minute;
+    		}
+	    }else {
+	    	
+	        result = Hour + ':' + Minute;
+	    }
+	    return result
+	}
+    
+    
+</script>
+</body>
+</html>
